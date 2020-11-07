@@ -63,29 +63,42 @@ public:
 
     // 带 zbufferr 的直线
     void line(float _x0, float _y0, float _z0, float _x1, float _y1, float _z1,
-              float *_zbuffer, const TGAColor &_color);
+              float *_zbuffer, const TGAColor &_color) const;
     void line(Vectorf3 _v0, Vectorf3 _v1, float *_zbuffer,
-              const TGAColor &_color);
+              const TGAColor &_color) const;
     void line(Vectorf3 *_vertexes, float *_zbuffer, const TGAColor &_color);
 
     // 三角形
     void triangle(const Vectors2 &_vertex1, const Vectors2 &_vertex2,
                   const Vectors2 &_vertex3, const TGAColor &_color) const;
     void triangle(const Vectors2 *_vertexes, const TGAColor &_color) const;
-
-    // 带 zbufferr 的三角形
+    // 带 zbuffer 的三角形
     void triangle(const Vectorf3 &_vertex1, const Vectorf3 &_vertex2,
                   const Vectorf3 &_vertex3, float *_zbuffer,
                   const TGAColor &_color) const;
     void triangle(const Vectorf3 *_vertexes, float *_zbuffer,
-                  const TGAColor &_color);
+                  const TGAColor &_color) const;
+    // 填充的三角形
+    void triangle_fill(const Vectors2 &_vertex1, const Vectors2 &_vertex2,
+                       const Vectors2 &_vertex3, const TGAColor &_color) const;
+    void triangle_fill(const Vectors2 *_vertexes, const TGAColor &_color) const;
+    // 带 zbufferr 的填充三角形
+    void triangle_fill(const Vectorf3 &_vertex1, const Vectorf3 &_vertex2,
+                       const Vectorf3 &_vertex3, float *_zbuffer,
+                       const TGAColor &_color) const;
+    void triangle_fill(const Vectorf3 *_vertexes, float *_zbuffer,
+                       const TGAColor &_color) const;
 
     // 圆 Bresenham
     void circle(size_t _x0, size_t _y0, float _r, TGAColor _color) const;
-
     // 带 zbufferr 的圆
     void circle(size_t _x0, size_t _y0, float _r, float *_zbuffer,
                 const TGAColor &_color) const;
+    // 填充圆
+    void circle_fill(size_t _x0, size_t _y0, float _r, TGAColor _color) const;
+    // 带 zbufferr 的填充圆
+    void circle_fill(size_t _x0, size_t _y0, float _r, float *_zbuffer,
+                     TGAColor _color) const;
 };
 
 #endif /* __GEOMTRY_H__ */

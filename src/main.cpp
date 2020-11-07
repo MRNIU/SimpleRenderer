@@ -25,10 +25,10 @@ int main(int argc, char **argv) {
     else {
         filename = "../../src/obj/african_head.obj";
     }
-    Model    model(filename);
-    TGAImage image(width, height, TGAImage::RGBA);
-    Geometry painter(image);
-    Renderer render = Renderer(painter, model);
+    OBJModel       model(filename);
+    TGAImage       image(width, height, TGAImage::RGBA);
+    Geometry       painter(image);
+    const Renderer render = Renderer(painter, model);
     render.render();
     render.save();
     // test.test_vector();

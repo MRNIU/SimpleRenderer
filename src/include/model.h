@@ -11,8 +11,6 @@
 #include "string"
 #include "vector.hpp"
 
-// 参考: http://read.pudn.com/downloads115/ebook/484936/OpenGL_wenjian.pdf
-
 // v x y z
 // 顶点坐标 v x坐标 y坐标 z坐标
 
@@ -29,76 +27,85 @@
 #define MAX 100
 
 // 顶点
-struct Vertex {
-    int draw;
+typedef struct Vertex {
     // 顶点坐标
-    float x;
-    float y;
-    float z;
-    // 顶点对应的
-    float nx;
-    float ny;
-    float nz;
-    int   colorIndex;  // 颜色索引
-    int   vertexlndex; // 顶点索引
-    int   facets[90];  // 存面片数组
-    int   facetsNum;   // 面片数
-    int   edges[60];   // 存顶点数组
-    int   edgesNum;    // 顶点数
-};
+    Vectorf3 v;
+    // 顶点纹理
+    Vectorf3 vt;
+    // 顶点法向量
+    Vectorf3 vn;
+} Vertex_t;
+
+// 坐标
+typedef struct Vert_v {
+    Vectorf3 v;
+} Vert_v_t;
+
+// 纹理
+typedef struct Vert_vt {
+    Vectorf3 vt;
+} Vert_vt_t;
+
+// 顶点法向量
+typedef struct Vert_vn {
+    Vectorf3 vn;
+} Vert_vn_t;
+
+// 面索引
+typedef struct Face_idx {
+    // 三个顶点索引
+    // v/vt/vn
+    Vectors3 v0;
+    Vectors3 v1;
+    Vectors3 v2;
+} Face_idx_t;
 
 // 面
+typedef struct Face {
+    // 保存三个顶点的实际数据
+    Vertex_t v0;
+    Vertex_t v1;
+    Vertex_t v2;
+} Face_t;
 
-// 颜色
-struct ColorStruct {
-    int   index;          //颜色索引
-    float ra，ga，ba;     // 环境光的各分量
-    float rd, gd, bd, ad; // 漫反射光的各分量
-    float rs, gs, bs;     // 镜面反射光的各分量
-    float spec;           // 镜面反射光的强度
-};
-
-// 材质
-struct MaterialColor {
-    char  name[100];
-    float ra，ga，ba;     // 环境光的各分量
-    float rd, gd, bd, ad; // 漫反射光的各分量
-    float rs, gs, bs;     // 镜面反射光的各分量
-    float spec;           // 镜面反射光的强度
-};
-
-// 模型
-struct ModelContext {
-    int         faceCount;       // 面的数量
-    int         traggleFlag;     // 三角形标注
-    Vertex      vertexList[MAX]; // 模型中的顶点列表
-    int         vertexCount;     //顶点数量
-    Vertex      lineList[MAX];   // 模型中的线列表
-    int         lineCount;       //线数量
-    Vertex      lineStripList[MAX];
-    int         lineStripCount;
-    int         edgeList[MAX][2];   // 边界列表
-    int         edgeCount;          //边界数量
-    Vertex      objVertexList[MAX]; // obj 文件中的顶点
-    int         ovCount;            //顶点序数
-    int         onCount;            //法向量序数
-    ColorStruct colorList[MAX];     // 模型中的颜色列表
-    int         ColorCounr;         //颜色数
-    // etc.
-};
-
-class Model {
+class OBJModel {
 private:
-    std::vector<Vectorf3>         verts;
-    std::vector<std::vector<int>> faces;
+    // 顶点集
+    std::vector<Vertex_t> vertexes;
+    // 坐标集合
+    std::vector<Vert_v_t> vert_v;
+    // 纹理集
+    std::vector<Vert_vt_t> vert_vt;
+    // 法线集
+    std::vector<Vert_vn_t> vert_vn;
+    // 面索引集
+    std::vector<Face_idx_t> faces_idx;
+    // 面集
+    std::vector<Face_t> faces;
+    // 解析 v
+    void parse_v(const std::string &_line, Vert_v_t &_v) const;
+    // 解析 vn
+    void parse_vn(const std::string &_line, Vert_vn_t &_n) const;
+    // 解析 vt
+    void parse_vt(const std::string &_line, Vert_vt_t &_t) const;
+    // 解析 f
+    void parse_f(const std::string &_line, Face_idx_t &_f) const;
+    // 映射顶点坐标信息
+    void map_v(void);
+    // 映射顶点纹理信息, 没有在 f 中的点不会被映射纹理信息
+    void map_vt(void);
+    // 映射顶点法线信息
+    void map_vn(void);
+    // 将面中保存的索引转换为坐标
+    void faces_idx_2face(void);
 
 public:
-    Model(const std::string &_filename);
-    ~Model(void);
-    size_t           nverts(void) const;
-    size_t           nfaces(void) const;
-    Vectorf3         vert(int i) const;
-    std::vector<int> face(int _idx) const;
+    OBJModel(const std::string &_filename);
+    ~OBJModel(void);
+    size_t   get_vertex_count(void) const;
+    size_t   get_face_count(void) const;
+    Vertex_t vert(size_t _idx) const;
+    Face_t   face(size_t _idx) const;
 };
 
 #endif /* __MODEL_H__ */

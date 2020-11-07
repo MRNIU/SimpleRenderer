@@ -12,14 +12,14 @@
 using namespace std;
 
 size_t Renderer::get_x(float _x) const {
-    return (_x + 1.) * width / 3.;
+    return (_x + 1.) * width / 2.;
 }
 
 size_t Renderer::get_y(float _y) const {
-    return height - (_y + 1.) * height / 3.;
+    return height - (_y + 1.) * height / 2.;
 }
 
-Renderer::Renderer(Geometry &_painter, const Model &_model)
+Renderer::Renderer(Geometry &_painter, const OBJModel &_model)
     : model(_model), painter(_painter) {
     width   = painter.get_width();
     height  = painter.get_height();
@@ -37,15 +37,19 @@ Renderer::~Renderer(void) {
 
 bool Renderer::render(void) {
     // line_zbuffer();
-    fill_triangle_zbuffer();
-    // fill_circle_zbuffer();
+    // triangle_zbuffer();
+    // triangle_fill_zbuffer();
+    // circle_zbuffer();
+    // circle_fill_zbuffer();
     return true;
 }
 
 bool Renderer::render(void) const {
     // line();
-    fill_triangle();
-    // fill_circle();
+    // triangle();
+    // triangle_fill();
+    // circle();
+    circle_fill();
     return true;
 }
 
@@ -73,19 +77,93 @@ bool Renderer::save(const std::string &_filename) const {
 }
 
 bool Renderer::line(void) const {
+    Vectors2 v0 = Vectors2(width, height);
+    Vectors2 v1 = Vectors2(0, 0);
+    painter.line(v0, v1, white);
+    return true;
+}
+
+bool Renderer::line_zbuffer(void) {
+    for (size_t i = 0; i < model.get_face_count(); i++) {
+        Face_t   face = model.face(i);
+        Vectorf3 v0   = Vectorf3(get_x(face.v0.v.coord.x),
+                               get_y(face.v0.v.coord.y), face.v0.v.coord.z);
+        Vectorf3 v1   = Vectorf3(get_x(face.v1.v.coord.x),
+                               get_y(face.v1.v.coord.y), face.v1.v.coord.z);
+        painter.line(v0, v1, zbuffer, white);
+    }
+    return true;
+}
+
+bool Renderer::triangle(void) const {
     // 所有面
-    for (size_t i = 0; i < model.nfaces(); i++) {
+    for (size_t i = 0; i < model.get_face_count(); i++) {
         // 取出一个面
-        vector<int> face = model.face(i);
-        // 处理 x y 坐标
-        for (size_t j = 0; j < 3; j++) {
-            Vectorf3 v0 = model.vert(face.at(j));
-            Vectorf3 v1 = model.vert(face.at((j + 1) % 3));
-            size_t   x0 = get_x(v0.coord.x);
-            size_t   y0 = get_y(v0.coord.y);
-            size_t   x1 = get_x(v1.coord.x);
-            size_t   y1 = get_y(v1.coord.y);
-            painter.line(x0, y0, x1, y1, white);
+        Face_t   face = model.face(i);
+        Vectors2 v0 =
+            Vectors2(get_x(face.v0.v.coord.x), get_y(face.v0.v.coord.y));
+        Vectors2 v1 =
+            Vectors2(get_x(face.v1.v.coord.x), get_y(face.v1.v.coord.y));
+        Vectors2 v2 =
+            Vectors2(get_x(face.v2.v.coord.x), get_y(face.v2.v.coord.y));
+        painter.triangle(v0, v1, v2, white);
+    }
+    return true;
+}
+
+bool Renderer::triangle_zbuffer(void) {
+    for (size_t i = 0; i < model.get_face_count(); i++) {
+        Face_t   face = model.face(i);
+        Vectorf3 v0   = Vectorf3(get_x(face.v0.v.coord.x),
+                               get_y(face.v0.v.coord.y), face.v0.v.coord.z);
+        Vectorf3 v1   = Vectorf3(get_x(face.v1.v.coord.x),
+                               get_y(face.v1.v.coord.y), face.v1.v.coord.z);
+        Vectorf3 v2   = Vectorf3(get_x(face.v2.v.coord.x),
+                               get_y(face.v2.v.coord.y), face.v2.v.coord.z);
+        painter.triangle(v0, v1, v2, zbuffer, white);
+    }
+    return true;
+}
+
+bool Renderer::triangle_fill(void) const {
+    for (size_t i = 0; i < model.get_face_count(); i++) {
+        // 取出一个面
+        Face_t   face = model.face(i);
+        Vectors2 v0 =
+            Vectors2(get_x(face.v0.v.coord.x), get_y(face.v0.v.coord.y));
+        Vectors2 v1 =
+            Vectors2(get_x(face.v1.v.coord.x), get_y(face.v1.v.coord.y));
+        Vectors2 v2 =
+            Vectors2(get_x(face.v2.v.coord.x), get_y(face.v2.v.coord.y));
+        Vectorf3 n         = (face.v2.v - face.v0.v) ^ (face.v1.v - face.v0.v);
+        float    intensity = light_dir * n.unit();
+        if (intensity > 0) {
+            painter.triangle_fill(v0, v1, v2,
+                                  TGAColor(intensity * 255, intensity * 255,
+                                           intensity * 255, 255));
+        }
+    }
+    return true;
+}
+
+bool Renderer::triangle_fill_zbuffer(void) {
+    for (size_t i = 0; i < model.get_face_count(); i++) {
+        // 取出一个面
+        Face_t   face      = model.face(i);
+        Vectorf3 v0        = Vectorf3(get_x(face.v0.v.coord.x),
+                               get_y(face.v0.v.coord.y), face.v0.v.coord.z);
+        Vectorf3 v1        = Vectorf3(get_x(face.v1.v.coord.x),
+                               get_y(face.v1.v.coord.y), face.v1.v.coord.z);
+        Vectorf3 v2        = Vectorf3(get_x(face.v2.v.coord.x),
+                               get_y(face.v2.v.coord.y), face.v2.v.coord.z);
+        Vectorf3 n         = (face.v2.v - face.v0.v) ^ (face.v1.v - face.v0.v);
+        float    intensity = light_dir * n.unit();
+        // Vectorf3 n         = face.v0.vn + face.v1.vn + face.v2.vn;
+        // float    intensity = light_dir * (n * 0.33333);
+        if (intensity > 0) {
+            painter.triangle_fill(v0, v1, v2, zbuffer,
+                                  TGAColor(intensity * 255, intensity * 255,
+                                           intensity * 255, 255));
         }
     }
     return true;
@@ -96,76 +174,12 @@ bool Renderer::circle(void) const {
     return true;
 }
 
-bool Renderer::line_zbuffer(void) {
-    for (size_t i = 0; i < model.nfaces(); i++) {
-        vector<int> face = model.face(i);
-        for (size_t j = 0; j < 3; j++) {
-            Vectorf3 v0 = model.vert(face.at(j));
-            Vectorf3 v1 = model.vert(face.at((j + 1) % 3));
-            size_t   x0 = get_x(v0.coord.x);
-            size_t   y0 = get_y(v0.coord.y);
-            size_t   x1 = get_x(v1.coord.x);
-            size_t   y1 = get_y(v1.coord.y);
-            float    z0 = v0.coord.z;
-            float    z1 = v1.coord.z;
-            painter.line(x0, y0, z0, x1, y1, z1, zbuffer, white);
-        }
-    }
+bool Renderer::circle_fill(void) const {
+    painter.circle_fill(mid_width, mid_height, 50, white);
     return true;
 }
 
-bool Renderer::fill_triangle(void) const {
-    for (size_t i = 0; i < model.nfaces(); i++) {
-        std::vector<int> face = model.face(i);
-        Vectors2         screen_coords[3];
-        Vectorf3         world_coords[3];
-        for (size_t j = 0; j < 3; j++) {
-            Vectorf3 v               = model.vert(face[j]);
-            screen_coords[j].coord.x = get_x(v.coord.x);
-            screen_coords[j].coord.y = get_y(v.coord.y);
-            world_coords[j]          = model.vert(face[j]);
-        }
-        Vectorf3 n = (world_coords[2] - world_coords[0]) ^
-                     (world_coords[1] - world_coords[0]);
-        float intensity = light_dir * n.unit();
-        if (intensity > 0) {
-            painter.triangle(screen_coords[0], screen_coords[1],
-                             screen_coords[2],
-                             TGAColor(intensity * 255, intensity * 255,
-                                      intensity * 255, 255));
-        }
-    }
-    return true;
-}
-
-bool Renderer::fill_triangle_zbuffer(void) {
-    for (size_t i = 0; i < model.nfaces(); i++) {
-        std::vector<int> face = model.face(i);
-        Vectorf3         screen_coords[3];
-        Vectorf3         world_coords[3];
-        for (size_t j = 0; j < 3; j++) {
-            Vectorf3 v = model.vert(face[j]);
-            screen_coords[j] =
-                Vectorf3(get_x(v.coord.x), get_y(v.coord.y), v.coord.z);
-            world_coords[j] = v;
-        }
-        Vectorf3 n = (world_coords[2] - world_coords[0]) ^
-                     (world_coords[1] - world_coords[0]);
-        float intensity = light_dir * n.unit();
-        if (intensity > 0) {
-            painter.triangle(screen_coords[0], screen_coords[1],
-                             screen_coords[2], zbuffer,
-                             TGAColor(intensity * 255, intensity * 255,
-                                      intensity * 255, 255));
-        }
-    }
-    return true;
-}
-
-bool Renderer::fill_circle(void) const {
-    return true;
-}
-
-bool Renderer::fill_circle_zbuffer(void) {
+bool Renderer::circle_fill_zbuffer(void) {
+    painter.circle_fill(mid_width, mid_height, 50, zbuffer, white);
     return true;
 }

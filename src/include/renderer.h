@@ -17,7 +17,7 @@
 class Renderer {
 private:
     // 要渲染的模型
-    const Model &model;
+    const OBJModel &model;
     // 着色器?
     // 绘制像素
     Geometry &painter;
@@ -34,7 +34,7 @@ private:
 
 protected:
 public:
-    Renderer(Geometry &_painter2, const Model &_model);
+    Renderer(Geometry &_painter2, const OBJModel &_model);
     ~Renderer(void);
     // 渲染
     bool render(void);
@@ -52,18 +52,23 @@ public:
     bool line(void) const;
     // 带 zbuffer 的直线
     bool line_zbuffer();
+    // 三角
+    bool triangle(void) const;
+    // 带 zbuffer 的三角
+    bool triangle_zbuffer(void);
+    // 填充三角
+    bool triangle_fill(void) const;
+    // 带 zbuffer 的填充三角
+    bool triangle_fill_zbuffer(void);
     // TODO: 升级成任意曲线
     // 圆
     bool circle(void) const;
-    // 填充圆
-    bool fill_circle(void) const;
     // 带 zbuffer 的圆
-    bool fill_circle_zbuffer(void);
-
-    // 填充三角
-    bool fill_triangle(void) const;
-    // 带 zbuffer 的三角
-    bool fill_triangle_zbuffer(void);
+    bool circle_zbuffer(void);
+    // 填充圆
+    bool circle_fill(void) const;
+    // 带 zbuffer 的填充圆
+    bool circle_fill_zbuffer(void);
 };
 
 #endif /* __RENDER_H__ */

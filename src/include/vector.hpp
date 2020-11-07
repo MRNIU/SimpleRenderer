@@ -333,6 +333,7 @@ std::ostream &operator<<(std::ostream &_os, const Vector<T, N> &_v) {
 }
 
 typedef Vector<size_t, 2> Vectors2;
+typedef Vector<size_t, 3> Vectors3;
 typedef Vector<float, 2>  Vectorf2;
 typedef Vector<float, 3>  Vectorf3;
 typedef Vector<float, 4>  Vectorf4;

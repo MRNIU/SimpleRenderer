@@ -17,6 +17,6 @@ cmake ..
 make
 cd ./bin
 
-./renderer
+time ./renderer
 
 open ./output.tga
