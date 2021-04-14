@@ -52,7 +52,7 @@ struct Vertex {
 // 颜色
 struct ColorStruct {
     int   index;          //颜色索引
-    float ra，ga，ba;     // 环境光的各分量
+    float ra, ga, ba;     // 环境光的各分量
     float rd, gd, bd, ad; // 漫反射光的各分量
     float rs, gs, bs;     // 镜面反射光的各分量
     float spec;           // 镜面反射光的强度
@@ -61,7 +61,7 @@ struct ColorStruct {
 // 材质
 struct MaterialColor {
     char  name[100];
-    float ra，ga，ba;     // 环境光的各分量
+    float ra, ga, ba;     // 环境光的各分量
     float rd, gd, bd, ad; // 漫反射光的各分量
     float rs, gs, bs;     // 镜面反射光的各分量
     float spec;           // 镜面反射光的强度
