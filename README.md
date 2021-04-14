@@ -1,10 +1,3 @@
-# SimpleRenderer
+# zbuffer_model
 
-A software renderer
-
-软件光栅化渲染器
-
-依赖：libpng
-
-参考：https://github.com/ssloy/tinyrenderer
-
+简单的 zbuffer 算法与模型解析
